@@ -24,39 +24,35 @@ class SshExtension(Extension):
 
     def parse_ssh_config(self):
         home = expanduser("~")
-        ssh_config = []
         hosts = []
 
         try:
-            ssh_config = open(home + "/.ssh/config", "r")
+            with open(home + "/.ssh/config", "r") as ssh_config:
+                for line in ssh_config:
+                    line_lc = line.lower()
+
+                    if line_lc.startswith("host") and "*" not in line_lc and "keyalgorithms" not in line_lc:
+                        hosts.append(line_lc.strip("host").strip("\n").strip())
         except:
             logger.debug("ssh config not found!")
-
-        for line in ssh_config:
-            line_lc = line.lower()
-
-            if line_lc.startswith("host") and "*" not in line_lc and "keyalgorithms" not in line_lc:
-                hosts.append(line_lc.strip("host").strip("\n").strip())
 
         return hosts
 
     def parse_known_hosts(self):
         home = expanduser("~")
-        known_hosts = []
         hosts = []
         host_regex = re.compile("^[a-zA-Z0-9\\-\\.]*(?=(,.*)*\\s)")
 
         try:
-            known_hosts = open(home + "/.ssh/known_hosts", "r")
+            with open(home + "/.ssh/known_hosts", "r") as known_hosts:
+                for line in known_hosts:
+                    line_lc = line.lower()
+                    match = host_regex.match(line_lc)
+
+                    if match:
+                        hosts.append(match.group().strip())
         except:
             logger.debug("known_hosts not found!")
-
-        for line in known_hosts:
-            line_lc = line.lower()
-            match = host_regex.match(line_lc)
-
-            if match:
-                hosts.append(match.group().strip())
 
         return hosts
 
