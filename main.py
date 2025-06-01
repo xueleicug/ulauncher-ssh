@@ -84,7 +84,9 @@ class SshExtension(Extension):
         cmd = self.terminal_cmd.replace("%SHELL", shell).replace("%CONN", addr)
 
         if self.terminal:
-            exec_params.append(self.terminal, cmd_args, cmd)
+            exec_params.append(self.terminal)
+            exec_params.append(cmd_args)
+            exec_params.append(cmd)
             subprocess.Popen(exec_params, cwd=home)
 
 class ItemEnterEventListener(EventListener):
